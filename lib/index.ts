@@ -1,4 +1,33 @@
 import type { JscadOperation } from "jscad-planner"
+import {
+  AdvancedBrepShapeRepresentation,
+  AdvancedFace,
+  ApplicationContext,
+  ApplicationProtocolDefinition,
+  Axis2Placement3D,
+  CartesianPoint,
+  ClosedShell,
+  Direction,
+  EdgeCurve,
+  EdgeLoop,
+  FaceOuterBound,
+  Line,
+  ManifoldSolidBrep,
+  OrientedEdge,
+  Plane,
+  Product,
+  ProductContext,
+  ProductDefinition,
+  ProductDefinitionContext,
+  ProductDefinitionFormation,
+  ProductDefinitionShape,
+  type Ref,
+  Repository,
+  ShapeDefinitionRepresentation,
+  Unknown,
+  Vector,
+  VertexPoint,
+} from "stepts"
 
 /**
  * Convert a jscad-planner operation to STEP format.
@@ -7,185 +36,294 @@ import type { JscadOperation } from "jscad-planner"
  * TODO: Implement actual jscad → STEP conversion
  */
 export function jscadToStep(operation: JscadOperation): string {
-  // For now, return a hardcoded simple cube STEP file
-  // This is a valid STEP file representing a 10x10x10 cube
-  return `ISO-10303-21;
-HEADER;
-FILE_DESCRIPTION(('jscad-to-step cube'),'2;1');
-FILE_NAME('cube.step','2025-01-01',('jscad-to-step'),('tscircuit'),'generator','','');
-FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
-ENDSEC;
-DATA;
-#1 = APPLICATION_PROTOCOL_DEFINITION('international standard','automotive_design',2000,#2);
-#2 = APPLICATION_CONTEXT('core data for automotive mechanical design processes');
-#3 = SHAPE_DEFINITION_REPRESENTATION(#4,#10);
-#4 = PRODUCT_DEFINITION_SHAPE('','',#5);
-#5 = PRODUCT_DEFINITION('design','',#6,#9);
-#6 = PRODUCT_DEFINITION_FORMATION('','',#7);
-#7 = PRODUCT('cube','cube','',(#8));
-#8 = PRODUCT_CONTEXT('',#2,'mechanical');
-#9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
-#10 = ADVANCED_BREP_SHAPE_REPRESENTATION('cube',(#11,#12),#200);
-#11 = AXIS2_PLACEMENT_3D('',#13,#14,#15);
-#12 = MANIFOLD_SOLID_BREP('cube',#16);
-#13 = CARTESIAN_POINT('',(0.,0.,0.));
-#14 = DIRECTION('',(0.,0.,1.));
-#15 = DIRECTION('',(1.,0.,0.));
-#16 = CLOSED_SHELL('',(#17,#37,#57,#77,#97,#117));
-#17 = ADVANCED_FACE('',(#18),#33,.T.);
-#18 = FACE_OUTER_BOUND('',#19,.T.);
-#19 = EDGE_LOOP('',(#20,#24,#28,#32));
-#20 = ORIENTED_EDGE('',*,*,#21,.T.);
-#21 = EDGE_CURVE('',#22,#23,#100,.T.);
-#22 = VERTEX_POINT('',#101);
-#23 = VERTEX_POINT('',#102);
-#24 = ORIENTED_EDGE('',*,*,#25,.T.);
-#25 = EDGE_CURVE('',#23,#26,#103,.T.);
-#26 = VERTEX_POINT('',#104);
-#28 = ORIENTED_EDGE('',*,*,#29,.F.);
-#29 = EDGE_CURVE('',#30,#26,#105,.T.);
-#30 = VERTEX_POINT('',#106);
-#32 = ORIENTED_EDGE('',*,*,#34,.F.);
-#33 = PLANE('',#35);
-#34 = EDGE_CURVE('',#22,#30,#107,.T.);
-#35 = AXIS2_PLACEMENT_3D('',#108,#109,#110);
-#37 = ADVANCED_FACE('',(#38),#53,.T.);
-#38 = FACE_OUTER_BOUND('',#39,.T.);
-#39 = EDGE_LOOP('',(#40,#44,#48,#52));
-#40 = ORIENTED_EDGE('',*,*,#41,.T.);
-#41 = EDGE_CURVE('',#42,#43,#111,.T.);
-#42 = VERTEX_POINT('',#112);
-#43 = VERTEX_POINT('',#113);
-#44 = ORIENTED_EDGE('',*,*,#45,.T.);
-#45 = EDGE_CURVE('',#43,#46,#114,.T.);
-#46 = VERTEX_POINT('',#115);
-#48 = ORIENTED_EDGE('',*,*,#49,.F.);
-#49 = EDGE_CURVE('',#50,#46,#116,.T.);
-#50 = VERTEX_POINT('',#117);
-#52 = ORIENTED_EDGE('',*,*,#54,.F.);
-#53 = PLANE('',#55);
-#54 = EDGE_CURVE('',#42,#50,#118,.T.);
-#55 = AXIS2_PLACEMENT_3D('',#119,#120,#121);
-#57 = ADVANCED_FACE('',(#58),#73,.T.);
-#58 = FACE_OUTER_BOUND('',#59,.T.);
-#59 = EDGE_LOOP('',(#60,#64,#68,#72));
-#60 = ORIENTED_EDGE('',*,*,#61,.T.);
-#61 = EDGE_CURVE('',#22,#42,#122,.T.);
-#64 = ORIENTED_EDGE('',*,*,#41,.T.);
-#68 = ORIENTED_EDGE('',*,*,#69,.F.);
-#69 = EDGE_CURVE('',#23,#43,#123,.T.);
-#72 = ORIENTED_EDGE('',*,*,#21,.F.);
-#73 = PLANE('',#74);
-#74 = AXIS2_PLACEMENT_3D('',#124,#125,#126);
-#77 = ADVANCED_FACE('',(#78),#93,.T.);
-#78 = FACE_OUTER_BOUND('',#79,.T.);
-#79 = EDGE_LOOP('',(#80,#84,#88,#92));
-#80 = ORIENTED_EDGE('',*,*,#25,.T.);
-#84 = ORIENTED_EDGE('',*,*,#85,.T.);
-#85 = EDGE_CURVE('',#26,#46,#127,.T.);
-#88 = ORIENTED_EDGE('',*,*,#45,.F.);
-#92 = ORIENTED_EDGE('',*,*,#69,.F.);
-#93 = PLANE('',#94);
-#94 = AXIS2_PLACEMENT_3D('',#128,#129,#130);
-#97 = ADVANCED_FACE('',(#98),#131,.T.);
-#98 = FACE_OUTER_BOUND('',#99,.T.);
-#99 = EDGE_LOOP('',(#132,#133,#134,#135));
-#100 = LINE('',#136,#137);
-#101 = CARTESIAN_POINT('',(0.,0.,0.));
-#102 = CARTESIAN_POINT('',(10.,0.,0.));
-#103 = LINE('',#138,#139);
-#104 = CARTESIAN_POINT('',(10.,10.,0.));
-#105 = LINE('',#140,#141);
-#106 = CARTESIAN_POINT('',(0.,10.,0.));
-#107 = LINE('',#142,#143);
-#108 = CARTESIAN_POINT('',(0.,0.,0.));
-#109 = DIRECTION('',(0.,0.,-1.));
-#110 = DIRECTION('',(1.,0.,0.));
-#111 = LINE('',#144,#145);
-#112 = CARTESIAN_POINT('',(0.,0.,10.));
-#113 = CARTESIAN_POINT('',(10.,0.,10.));
-#114 = LINE('',#146,#147);
-#115 = CARTESIAN_POINT('',(10.,10.,10.));
-#116 = LINE('',#148,#149);
-#117 = CARTESIAN_POINT('',(0.,10.,10.));
-#118 = LINE('',#150,#151);
-#119 = CARTESIAN_POINT('',(0.,0.,10.));
-#120 = DIRECTION('',(0.,0.,1.));
-#121 = DIRECTION('',(1.,0.,0.));
-#122 = LINE('',#152,#153);
-#123 = LINE('',#154,#155);
-#124 = CARTESIAN_POINT('',(0.,0.,0.));
-#125 = DIRECTION('',(0.,-1.,0.));
-#126 = DIRECTION('',(1.,0.,0.));
-#127 = LINE('',#156,#157);
-#128 = CARTESIAN_POINT('',(10.,0.,0.));
-#129 = DIRECTION('',(1.,0.,0.));
-#130 = DIRECTION('',(0.,1.,0.));
-#131 = PLANE('',#158);
-#132 = ORIENTED_EDGE('',*,*,#29,.T.);
-#133 = ORIENTED_EDGE('',*,*,#85,.T.);
-#134 = ORIENTED_EDGE('',*,*,#49,.F.);
-#135 = ORIENTED_EDGE('',*,*,#159,.F.);
-#136 = CARTESIAN_POINT('',(0.,0.,0.));
-#137 = VECTOR('',#160,1.);
-#138 = CARTESIAN_POINT('',(10.,0.,0.));
-#139 = VECTOR('',#161,1.);
-#140 = CARTESIAN_POINT('',(0.,10.,0.));
-#141 = VECTOR('',#162,1.);
-#142 = CARTESIAN_POINT('',(0.,0.,0.));
-#143 = VECTOR('',#163,1.);
-#144 = CARTESIAN_POINT('',(0.,0.,10.));
-#145 = VECTOR('',#164,1.);
-#146 = CARTESIAN_POINT('',(10.,0.,10.));
-#147 = VECTOR('',#165,1.);
-#148 = CARTESIAN_POINT('',(0.,10.,10.));
-#149 = VECTOR('',#166,1.);
-#150 = CARTESIAN_POINT('',(0.,0.,10.));
-#151 = VECTOR('',#167,1.);
-#152 = CARTESIAN_POINT('',(0.,0.,0.));
-#153 = VECTOR('',#168,1.);
-#154 = CARTESIAN_POINT('',(10.,0.,0.));
-#155 = VECTOR('',#169,1.);
-#156 = CARTESIAN_POINT('',(10.,10.,0.));
-#157 = VECTOR('',#170,1.);
-#158 = AXIS2_PLACEMENT_3D('',#171,#172,#173);
-#159 = EDGE_CURVE('',#30,#50,#174,.T.);
-#160 = DIRECTION('',(1.,0.,0.));
-#161 = DIRECTION('',(0.,1.,0.));
-#162 = DIRECTION('',(1.,0.,0.));
-#163 = DIRECTION('',(0.,1.,0.));
-#164 = DIRECTION('',(1.,0.,0.));
-#165 = DIRECTION('',(0.,1.,0.));
-#166 = DIRECTION('',(1.,0.,0.));
-#167 = DIRECTION('',(0.,1.,0.));
-#168 = DIRECTION('',(0.,0.,1.));
-#169 = DIRECTION('',(0.,0.,1.));
-#170 = DIRECTION('',(0.,0.,1.));
-#171 = CARTESIAN_POINT('',(0.,10.,0.));
-#172 = DIRECTION('',(0.,1.,0.));
-#173 = DIRECTION('',(1.,0.,0.));
-#174 = LINE('',#175,#176);
-#175 = CARTESIAN_POINT('',(0.,10.,0.));
-#176 = VECTOR('',#177,1.);
-#177 = DIRECTION('',(0.,0.,1.));
-#117 = ADVANCED_FACE('',(#178),#193,.T.);
-#178 = FACE_OUTER_BOUND('',#179,.T.);
-#179 = EDGE_LOOP('',(#180,#184,#188,#192));
-#180 = ORIENTED_EDGE('',*,*,#34,.T.);
-#184 = ORIENTED_EDGE('',*,*,#159,.T.);
-#188 = ORIENTED_EDGE('',*,*,#54,.F.);
-#192 = ORIENTED_EDGE('',*,*,#61,.F.);
-#193 = PLANE('',#194);
-#194 = AXIS2_PLACEMENT_3D('',#195,#196,#197);
-#195 = CARTESIAN_POINT('',(0.,0.,0.));
-#196 = DIRECTION('',(-1.,0.,0.));
-#197 = DIRECTION('',(0.,1.,0.));
-#200 = ( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#201)) GLOBAL_UNIT_ASSIGNED_CONTEXT((#202,#203,#204)) REPRESENTATION_CONTEXT('Context #1','3D Context with TORTURE://UNITS') );
-#201 = UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(1.E-07),#202,'distance_accuracy_value','confusion accuracy');
-#202 = ( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) );
-#203 = ( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) );
-#204 = ( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() );
-ENDSEC;
-END-ISO-10303-21;
-`
+  const repo = new Repository()
+
+  // Product structure
+  const appContext = repo.add(
+    new ApplicationContext(
+      "core data for automotive mechanical design processes",
+    ),
+  )
+  repo.add(
+    new ApplicationProtocolDefinition(
+      "international standard",
+      "automotive_design",
+      2000,
+      appContext,
+    ),
+  )
+  const productContext = repo.add(
+    new ProductContext("", appContext, "mechanical"),
+  )
+  const product = repo.add(new Product("cube", "cube", "", [productContext]))
+  const productDefContext = repo.add(
+    new ProductDefinitionContext("part definition", appContext, "design"),
+  )
+  const productDefFormation = repo.add(
+    new ProductDefinitionFormation("", "", product),
+  )
+  const productDef = repo.add(
+    new ProductDefinition("design", "", productDefFormation, productDefContext),
+  )
+  const productDefShape = repo.add(
+    new ProductDefinitionShape("", "", productDef),
+  )
+
+  // Representation context (units)
+  const lengthUnit = repo.add(
+    new Unknown("", [
+      "( LENGTH_UNIT() NAMED_UNIT(*) SI_UNIT(.MILLI.,.METRE.) )",
+    ]),
+  )
+  const angleUnit = repo.add(
+    new Unknown("", [
+      "( NAMED_UNIT(*) PLANE_ANGLE_UNIT() SI_UNIT($,.RADIAN.) )",
+    ]),
+  )
+  const solidAngleUnit = repo.add(
+    new Unknown("", [
+      "( NAMED_UNIT(*) SI_UNIT($,.STERADIAN.) SOLID_ANGLE_UNIT() )",
+    ]),
+  )
+  const uncertainty = repo.add(
+    new Unknown("UNCERTAINTY_MEASURE_WITH_UNIT", [
+      "LENGTH_MEASURE(1.E-07)",
+      `${lengthUnit}`,
+      "'distance_accuracy_value'",
+      "'confusion accuracy'",
+    ]),
+  )
+  const geomContext = repo.add(
+    new Unknown("", [
+      `( GEOMETRIC_REPRESENTATION_CONTEXT(3) GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((${uncertainty})) GLOBAL_UNIT_ASSIGNED_CONTEXT((${lengthUnit},${angleUnit},${solidAngleUnit})) REPRESENTATION_CONTEXT('Context #1','3D Context with TORTURE://UNITS') )`,
+    ]),
+  )
+
+  // Box dimensions: 10x10x10
+  const size = 10
+
+  // Create 8 vertices for the box corners
+  // Bottom face (z=0): v0=(0,0,0), v1=(10,0,0), v2=(10,10,0), v3=(0,10,0)
+  // Top face (z=10):   v4=(0,0,10), v5=(10,0,10), v6=(10,10,10), v7=(0,10,10)
+  const vertices = [
+    [0, 0, 0],
+    [size, 0, 0],
+    [size, size, 0],
+    [0, size, 0],
+    [0, 0, size],
+    [size, 0, size],
+    [size, size, size],
+    [0, size, size],
+  ].map(([x, y, z]) =>
+    repo.add(new VertexPoint("", repo.add(new CartesianPoint("", x, y, z)))),
+  )
+
+  // Helper to create an edge between two vertices
+  function createEdge(v1Idx: number, v2Idx: number): Ref<EdgeCurve> {
+    const v1 = vertices[v1Idx]
+    const v2 = vertices[v2Idx]
+    const p1 = v1.resolve(repo).pnt.resolve(repo)
+    const p2 = v2.resolve(repo).pnt.resolve(repo)
+    const dir = repo.add(
+      new Direction("", p2.x - p1.x, p2.y - p1.y, p2.z - p1.z),
+    )
+    const vec = repo.add(new Vector("", dir, 1))
+    const line = repo.add(new Line("", v1.resolve(repo).pnt, vec))
+    return repo.add(new EdgeCurve("", v1, v2, line, true))
+  }
+
+  // Create all 12 edges of the cube
+  // Bottom face edges
+  const e0 = createEdge(0, 1) // (0,0,0) -> (10,0,0)
+  const e1 = createEdge(1, 2) // (10,0,0) -> (10,10,0)
+  const e2 = createEdge(2, 3) // (10,10,0) -> (0,10,0)
+  const e3 = createEdge(3, 0) // (0,10,0) -> (0,0,0)
+  // Top face edges
+  const e4 = createEdge(4, 5) // (0,0,10) -> (10,0,10)
+  const e5 = createEdge(5, 6) // (10,0,10) -> (10,10,10)
+  const e6 = createEdge(6, 7) // (10,10,10) -> (0,10,10)
+  const e7 = createEdge(7, 4) // (0,10,10) -> (0,0,10)
+  // Vertical edges
+  const e8 = createEdge(0, 4) // (0,0,0) -> (0,0,10)
+  const e9 = createEdge(1, 5) // (10,0,0) -> (10,0,10)
+  const e10 = createEdge(2, 6) // (10,10,0) -> (10,10,10)
+  const e11 = createEdge(3, 7) // (0,10,0) -> (0,10,10)
+
+  // Common directions
+  const origin = repo.add(new CartesianPoint("", 0, 0, 0))
+  const xDir = repo.add(new Direction("", 1, 0, 0))
+  const yDir = repo.add(new Direction("", 0, 1, 0))
+  const zDir = repo.add(new Direction("", 0, 0, 1))
+
+  // Bottom face (z=0, normal -Z)
+  const bottomFrame = repo.add(
+    new Axis2Placement3D(
+      "",
+      origin,
+      repo.add(new Direction("", 0, 0, -1)),
+      xDir,
+    ),
+  )
+  const bottomPlane = repo.add(new Plane("", bottomFrame))
+  const bottomLoop = repo.add(
+    new EdgeLoop("", [
+      repo.add(new OrientedEdge("", e0, true)),
+      repo.add(new OrientedEdge("", e1, true)),
+      repo.add(new OrientedEdge("", e2, true)),
+      repo.add(new OrientedEdge("", e3, true)),
+    ]),
+  )
+  const bottomFace = repo.add(
+    new AdvancedFace(
+      "",
+      [repo.add(new FaceOuterBound("", bottomLoop, true))],
+      bottomPlane,
+      true,
+    ),
+  )
+
+  // Top face (z=size, normal +Z)
+  const topOrigin = repo.add(new CartesianPoint("", 0, 0, size))
+  const topFrame = repo.add(new Axis2Placement3D("", topOrigin, zDir, xDir))
+  const topPlane = repo.add(new Plane("", topFrame))
+  const topLoop = repo.add(
+    new EdgeLoop("", [
+      repo.add(new OrientedEdge("", e4, true)),
+      repo.add(new OrientedEdge("", e5, true)),
+      repo.add(new OrientedEdge("", e6, true)),
+      repo.add(new OrientedEdge("", e7, true)),
+    ]),
+  )
+  const topFace = repo.add(
+    new AdvancedFace(
+      "",
+      [repo.add(new FaceOuterBound("", topLoop, true))],
+      topPlane,
+      true,
+    ),
+  )
+
+  // Front face (y=0, normal -Y)
+  const frontFrame = repo.add(
+    new Axis2Placement3D(
+      "",
+      origin,
+      repo.add(new Direction("", 0, -1, 0)),
+      xDir,
+    ),
+  )
+  const frontPlane = repo.add(new Plane("", frontFrame))
+  const frontLoop = repo.add(
+    new EdgeLoop("", [
+      repo.add(new OrientedEdge("", e0, true)),
+      repo.add(new OrientedEdge("", e9, true)),
+      repo.add(new OrientedEdge("", e4, false)),
+      repo.add(new OrientedEdge("", e8, false)),
+    ]),
+  )
+  const frontFace = repo.add(
+    new AdvancedFace(
+      "",
+      [repo.add(new FaceOuterBound("", frontLoop, true))],
+      frontPlane,
+      true,
+    ),
+  )
+
+  // Right face (x=size, normal +X)
+  const rightOrigin = repo.add(new CartesianPoint("", size, 0, 0))
+  const rightFrame = repo.add(
+    new Axis2Placement3D("", rightOrigin, xDir, yDir),
+  )
+  const rightPlane = repo.add(new Plane("", rightFrame))
+  const rightLoop = repo.add(
+    new EdgeLoop("", [
+      repo.add(new OrientedEdge("", e1, true)),
+      repo.add(new OrientedEdge("", e10, true)),
+      repo.add(new OrientedEdge("", e5, false)),
+      repo.add(new OrientedEdge("", e9, false)),
+    ]),
+  )
+  const rightFace = repo.add(
+    new AdvancedFace(
+      "",
+      [repo.add(new FaceOuterBound("", rightLoop, true))],
+      rightPlane,
+      true,
+    ),
+  )
+
+  // Back face (y=size, normal +Y)
+  const backOrigin = repo.add(new CartesianPoint("", 0, size, 0))
+  const backFrame = repo.add(new Axis2Placement3D("", backOrigin, yDir, xDir))
+  const backPlane = repo.add(new Plane("", backFrame))
+  const backLoop = repo.add(
+    new EdgeLoop("", [
+      repo.add(new OrientedEdge("", e2, true)),
+      repo.add(new OrientedEdge("", e11, true)),
+      repo.add(new OrientedEdge("", e6, false)),
+      repo.add(new OrientedEdge("", e10, false)),
+    ]),
+  )
+  const backFace = repo.add(
+    new AdvancedFace(
+      "",
+      [repo.add(new FaceOuterBound("", backLoop, true))],
+      backPlane,
+      true,
+    ),
+  )
+
+  // Left face (x=0, normal -X)
+  const leftFrame = repo.add(
+    new Axis2Placement3D(
+      "",
+      origin,
+      repo.add(new Direction("", -1, 0, 0)),
+      yDir,
+    ),
+  )
+  const leftPlane = repo.add(new Plane("", leftFrame))
+  const leftLoop = repo.add(
+    new EdgeLoop("", [
+      repo.add(new OrientedEdge("", e3, true)),
+      repo.add(new OrientedEdge("", e8, true)),
+      repo.add(new OrientedEdge("", e7, false)),
+      repo.add(new OrientedEdge("", e11, false)),
+    ]),
+  )
+  const leftFace = repo.add(
+    new AdvancedFace(
+      "",
+      [repo.add(new FaceOuterBound("", leftLoop, true))],
+      leftPlane,
+      true,
+    ),
+  )
+
+  // Closed shell and solid brep
+  const shell = repo.add(
+    new ClosedShell("", [
+      bottomFace,
+      topFace,
+      frontFace,
+      rightFace,
+      backFace,
+      leftFace,
+    ]),
+  )
+  const solid = repo.add(new ManifoldSolidBrep("cube", shell))
+
+  // Shape representation
+  const placement = repo.add(new Axis2Placement3D("", origin, zDir, xDir))
+  const shapeRep = repo.add(
+    new AdvancedBrepShapeRepresentation(
+      "cube",
+      [placement, solid],
+      geomContext,
+    ),
+  )
+  repo.add(new ShapeDefinitionRepresentation(productDefShape, shapeRep))
+
+  return repo.toPartFile({ name: "cube.step" })
 }
