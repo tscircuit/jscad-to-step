@@ -20,7 +20,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "jscad-planner": "^0.0.13",
+    "jscad-planner": "^0.0.14",
     "stepts": "^0.0.1"
   }
 }
