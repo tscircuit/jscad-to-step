@@ -35,12 +35,24 @@ interface Geom3 {
 
 function extractPosition(vertex: any): Vec3 {
   if (Array.isArray(vertex) && vertex.length >= 3) {
-    return [Number(vertex[0]) || 0, Number(vertex[1]) || 0, Number(vertex[2]) || 0]
+    return [
+      Number(vertex[0]) || 0,
+      Number(vertex[1]) || 0,
+      Number(vertex[2]) || 0,
+    ]
   }
   if (vertex?.pos && Array.isArray(vertex.pos) && vertex.pos.length >= 3) {
-    return [Number(vertex.pos[0]) || 0, Number(vertex.pos[1]) || 0, Number(vertex.pos[2]) || 0]
+    return [
+      Number(vertex.pos[0]) || 0,
+      Number(vertex.pos[1]) || 0,
+      Number(vertex.pos[2]) || 0,
+    ]
   }
-  if (vertex?.position && Array.isArray(vertex.position) && vertex.position.length >= 3) {
+  if (
+    vertex?.position &&
+    Array.isArray(vertex.position) &&
+    vertex.position.length >= 3
+  ) {
     return [
       Number(vertex.position[0]) || 0,
       Number(vertex.position[1]) || 0,
@@ -103,7 +115,10 @@ export function geom3ToBrep(
       const line = repo.add(new Line("", startPt, vec))
       edgeRef = repo.add(new EdgeCurve("", startRef, endRef, line, true))
       edgeMap.set(eKey, edgeRef)
-      edgeDirection.set(eKey, [aKey < bKey ? aKey : bKey, aKey < bKey ? bKey : aKey])
+      edgeDirection.set(eKey, [
+        aKey < bKey ? aKey : bKey,
+        aKey < bKey ? bKey : aKey,
+      ])
     }
 
     // sameDirection = polygon traversal goes in same direction as canonical edge
@@ -169,11 +184,15 @@ export function geom3ToBrep(
 
     // Create plane
     const planeOrigin = repo.add(new CartesianPoint("", v0[0], v0[1], v0[2]))
-    const planeNormal = repo.add(new Direction("", normal[0], normal[1], normal[2]))
+    const planeNormal = repo.add(
+      new Direction("", normal[0], normal[1], normal[2]),
+    )
 
     // Compute ref direction (perpendicular to normal, in the plane)
     const edge0Dir = normalize(ab)
-    const refDir = repo.add(new Direction("", edge0Dir[0], edge0Dir[1], edge0Dir[2]))
+    const refDir = repo.add(
+      new Direction("", edge0Dir[0], edge0Dir[1], edge0Dir[2]),
+    )
 
     const placement = repo.add(
       new Axis2Placement3D("", planeOrigin, planeNormal, refDir),

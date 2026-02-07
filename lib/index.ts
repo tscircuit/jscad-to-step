@@ -92,12 +92,7 @@ export function jscadToStep(operation: JscadOperation): string {
     new ProductDefinitionFormation("", "", product),
   )
   const productDef = repo.add(
-    new ProductDefinition(
-      "design",
-      "",
-      productDefFormation,
-      productDefContext,
-    ),
+    new ProductDefinition("design", "", productDefFormation, productDefContext),
   )
   const productDefShape = repo.add(
     new ProductDefinitionShape("", "", productDef),
