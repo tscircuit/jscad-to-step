@@ -1,8 +1,19 @@
 {
   "name": "jscad-to-step",
   "version": "0.0.3",
-  "module": "index.ts",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup lib/index.ts --format esm --dts",
     "format": "biome format --write .",
