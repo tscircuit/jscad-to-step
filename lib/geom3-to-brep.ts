@@ -18,6 +18,8 @@ import {
   type Vec3,
   subtract,
   cross,
+  dot,
+  lengthSq,
   normalize,
   applyTransform,
   vertexKey,
@@ -63,6 +65,80 @@ function extractPosition(vertex: any): Vec3 {
 }
 
 /**
+ * Check if point P lies strictly between A and B on segment AB.
+ * Returns true if P is on the line AB and between A and B (not at endpoints).
+ */
+function pointOnSegment(a: Vec3, b: Vec3, p: Vec3, eps: number): boolean {
+  const ab = subtract(b, a)
+  const ap = subtract(p, a)
+  const abLen2 = lengthSq(ab)
+  if (abLen2 < eps * eps) return false
+
+  // Check colinearity: |cross(AB, AP)| / |AB| < eps
+  const cp = cross(ab, ap)
+  const crossLen2 = lengthSq(cp)
+  if (crossLen2 > eps * eps * abLen2) return false
+
+  // Check parameter t: P = A + t*(B-A), need 0 < t < 1
+  const t = dot(ap, ab) / abLen2
+  return t > eps && t < 1 - eps
+}
+
+/**
+ * Split polygon edges at T-junction vertices.
+ * For each edge in each polygon, if any vertex from another polygon lies
+ * on that edge, insert it to split the edge.
+ */
+function splitTJunctions(polygons: Vec3[][]): Vec3[][] {
+  // Collect all unique vertices
+  const allVertices = new Map<string, Vec3>()
+  for (const poly of polygons) {
+    for (const v of poly) {
+      allVertices.set(vertexKey(v), v)
+    }
+  }
+  const vertexList = Array.from(allVertices.values())
+
+  const result: Vec3[][] = []
+  for (const poly of polygons) {
+    const newPoly: Vec3[] = []
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i]!
+      const b = poly[(i + 1) % poly.length]!
+      newPoly.push(a)
+
+      // Find vertices that lie on this edge segment
+      const aKey = vertexKey(a)
+      const bKey = vertexKey(b)
+      const ab = subtract(b, a)
+      const abLen2 = lengthSq(ab)
+      if (abLen2 < 1e-14) continue
+
+      const intermediates: { t: number; v: Vec3 }[] = []
+      for (const v of vertexList) {
+        const vKey = vertexKey(v)
+        if (vKey === aKey || vKey === bKey) continue
+        if (pointOnSegment(a, b, v, 1e-6)) {
+          const ap = subtract(v, a)
+          const t = dot(ap, ab) / abLen2
+          intermediates.push({ t, v })
+        }
+      }
+
+      // Sort by parameter t and insert
+      if (intermediates.length > 0) {
+        intermediates.sort((x, y) => x.t - y.t)
+        for (const { v } of intermediates) {
+          newPoly.push(v)
+        }
+      }
+    }
+    result.push(newPoly)
+  }
+  return result
+}
+
+/**
  * Convert a geom3 (polygon mesh) into STEP B-Rep topology entities in the given repository.
  * Returns an array of AdvancedFace refs that can be used in a ClosedShell.
  */
@@ -72,8 +148,6 @@ export function geom3ToBrep(
 ): Ref<AdvancedFace>[] {
   const vertexMap = new Map<string, Ref<VertexPoint>>()
   const edgeMap = new Map<string, Ref<EdgeCurve>>()
-  // Track canonical direction for each edge so we can set OrientedEdge orientation
-  const edgeDirection = new Map<string, [string, string]>() // edgeKey -> [startKey, endKey]
 
   function getOrCreateVertex(pos: Vec3): Ref<VertexPoint> {
     const key = vertexKey(pos)
@@ -115,10 +189,6 @@ export function geom3ToBrep(
       const line = repo.add(new Line("", startPt, vec))
       edgeRef = repo.add(new EdgeCurve("", startRef, endRef, line, true))
       edgeMap.set(eKey, edgeRef)
-      edgeDirection.set(eKey, [
-        aKey < bKey ? aKey : bKey,
-        aKey < bKey ? bKey : aKey,
-      ])
     }
 
     // sameDirection = polygon traversal goes in same direction as canonical edge
@@ -126,17 +196,23 @@ export function geom3ToBrep(
     return { edgeRef, sameDirection }
   }
 
-  const faces: Ref<AdvancedFace>[] = []
-
+  // Transform all polygon vertices
+  let rawPolygons: Vec3[][] = []
   for (const polygon of geom.polygons) {
     if (!polygon?.vertices || polygon.vertices.length < 3) continue
-
-    // Transform vertices
     const positions: Vec3[] = polygon.vertices.map((v) => {
       const pos = extractPosition(v)
       return applyTransform(pos, geom.transforms)
     })
+    rawPolygons.push(positions)
+  }
 
+  // Split edges at T-junctions
+  rawPolygons = splitTJunctions(rawPolygons)
+
+  const faces: Ref<AdvancedFace>[] = []
+
+  for (const positions of rawPolygons) {
     // Deduplicate consecutive identical vertices
     const uniquePositions: Vec3[] = []
     for (let i = 0; i < positions.length; i++) {
@@ -154,7 +230,6 @@ export function geom3ToBrep(
 
     // Build oriented edges
     const orientedEdges: Ref<OrientedEdge>[] = []
-    let hasDegenerate = false
 
     for (let i = 0; i < uniquePositions.length; i++) {
       const aPos = uniquePositions[i]!
@@ -163,10 +238,7 @@ export function geom3ToBrep(
       const bRef = vertexRefs[(i + 1) % uniquePositions.length]!
 
       // Skip degenerate edges
-      if (vertexKey(aPos) === vertexKey(bPos)) {
-        hasDegenerate = true
-        continue
-      }
+      if (vertexKey(aPos) === vertexKey(bPos)) continue
 
       const { edgeRef, sameDirection } = getOrCreateEdge(aPos, bPos, aRef, bRef)
       orientedEdges.push(repo.add(new OrientedEdge("", edgeRef, sameDirection)))

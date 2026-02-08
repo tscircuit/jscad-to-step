@@ -32,5 +32,17 @@ export const applyTransform = (vector: Vec3, matrix?: number[]): Vec3 => {
   return [nx, ny, nz]
 }
 
+export const dot = (a: Vec3, b: Vec3): number =>
+  a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+
+export const lengthSq = (v: Vec3): number =>
+  v[0] * v[0] + v[1] * v[1] + v[2] * v[2]
+
+const fmtCoord = (n: number): string => {
+  const s = n.toFixed(7)
+  // Normalize "-0.0000000" to "0.0000000"
+  return s === "-0.0000000" ? "0.0000000" : s
+}
+
 export const vertexKey = (v: Vec3): string =>
-  `${v[0].toFixed(7)},${v[1].toFixed(7)},${v[2].toFixed(7)}`
+  `${fmtCoord(v[0])},${fmtCoord(v[1])},${fmtCoord(v[2])}`
