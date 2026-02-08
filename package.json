@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "build": "tsup lib/index.ts --format esm --dts",
     "format": "biome format --write .",
     "format:check": "biome format ."
   },
@@ -14,7 +15,8 @@
     "jscad-electronics": "^0.0.120",
     "looks-same": "^10.0.1",
     "occt-import-js": "^0.0.23",
-    "poppygl": "^0.0.17"
+    "poppygl": "^0.0.17",
+    "tsup": "^8.5.1"
   },
   "peerDependencies": {
     "typescript": "^5"
