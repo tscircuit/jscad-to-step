@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "module": "index.ts",
   "type": "module",
-  "private": true,
   "scripts": {
     "build": "tsup lib/index.ts --format esm --dts",
     "format": "biome format --write .",
