@@ -1,7 +1,7 @@
 import { test, expect } from "bun:test"
 import * as jscad from "@jscad/modeling"
 import { getJscadModelForFootprint } from "jscad-electronics/vanilla"
-import { jscadToStep } from "../../lib" 
+import { jscadToStep } from "../../lib"
 import {
   renderDrawCalls,
   type DrawCall,
