@@ -53,7 +53,9 @@ export const vertexKey = (v: Vec3): string =>
  * cases where initial vertices are nearly colinear.
  */
 export const newellNormal = (vertices: Vec3[]): Vec3 => {
-  let nx = 0, ny = 0, nz = 0
+  let nx = 0,
+    ny = 0,
+    nz = 0
   for (let i = 0; i < vertices.length; i++) {
     const curr = vertices[i]!
     const next = vertices[(i + 1) % vertices.length]!
