@@ -46,3 +46,28 @@ const fmtCoord = (n: number): string => {
 
 export const vertexKey = (v: Vec3): string =>
   `${fmtCoord(v[0])},${fmtCoord(v[1])},${fmtCoord(v[2])}`
+
+/**
+ * Compute polygon normal using the Newell method.
+ * More robust than cross product of first two edges, handles
+ * cases where initial vertices are nearly colinear.
+ */
+export const newellNormal = (vertices: Vec3[]): Vec3 => {
+  let nx = 0, ny = 0, nz = 0
+  for (let i = 0; i < vertices.length; i++) {
+    const curr = vertices[i]!
+    const next = vertices[(i + 1) % vertices.length]!
+    nx += (curr[1] - next[1]) * (curr[2] + next[2])
+    ny += (curr[2] - next[2]) * (curr[0] + next[0])
+    nz += (curr[0] - next[0]) * (curr[1] + next[1])
+  }
+  return normalize([nx, ny, nz])
+}
+
+/**
+ * Snap near-zero components to exactly 0 to avoid exponential notation
+ * in STEP output (STEP requires uppercase E, but JS uses lowercase e).
+ */
+const EPS = 1e-10
+const snap = (n: number): number => (Math.abs(n) < EPS ? 0 : n)
+export const cleanVec3 = (v: Vec3): Vec3 => [snap(v[0]), snap(v[1]), snap(v[2])]
