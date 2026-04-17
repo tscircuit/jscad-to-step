@@ -7,6 +7,9 @@ test("soic8 renders correctly", async () => {
   const model = getJscadModelForFootprint("soic8", jscad as any)
 
   const stepData = jscadToStep(model as any)
+  expect((stepData.match(/STYLED_ITEM/g) ?? []).length).toBe(
+    model.geometries.length,
+  )
 
   await expect(stepData).toMatchStepSnapshot(import.meta.path, "soic8")
 }, 30000)

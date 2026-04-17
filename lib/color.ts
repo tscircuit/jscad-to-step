@@ -11,6 +11,7 @@ import {
   SurfaceStyleUsage,
   type Entity,
 } from "stepts"
+import type { StepColor } from "./colors/index.ts"
 
 /**
  * Build the STEP color chain and return a StyledItem ref.
@@ -20,7 +21,7 @@ import {
 export function applyColorChain(
   repo: Repository,
   item: Ref<Entity>,
-  color: number[],
+  color: StepColor,
 ): Ref<StyledItem> {
   const r = color[0] ?? 0.8
   const g = color[1] ?? 0.8
