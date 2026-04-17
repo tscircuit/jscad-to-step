@@ -23,7 +23,10 @@ import {
 } from "stepts"
 import { geom3ToBrep } from "./geom3-to-brep.ts"
 import { applyColorChain } from "./color.ts"
-import { normalizeColorInput, type StepColorInput } from "./colors/index.ts"
+import {
+  convertColorInputToStepColor,
+  type StepColorInput,
+} from "./colors/index.ts"
 
 interface Geom3Like {
   polygons: Array<{ vertices: any[] }>
@@ -151,7 +154,7 @@ export function jscadToStep(operation: JscadOperation): string {
     shapeItems.push(solid)
 
     // Apply color if present
-    const color = normalizeColorInput(geom.color)
+    const color = convertColorInputToStepColor(geom.color)
     if (color) {
       const styledItem = applyColorChain(repo, solid, color)
       colorItems.push(styledItem)

@@ -3,7 +3,7 @@ import type { StepColor } from "./color-channel-scaling.ts"
 
 export type StepColorInput = number[] | string
 
-function normalizeRgbArray(color: number[]): StepColor | undefined {
+function convertRgbArrayToStepColor(color: number[]): StepColor | undefined {
   if (color.length < 3) return undefined
 
   const rgb = color.slice(0, 3).map((channel) => Number(channel))
@@ -13,7 +13,7 @@ function normalizeRgbArray(color: number[]): StepColor | undefined {
   return scaleRgbChannels(rgb, scale)
 }
 
-function normalizeHexColor(color: string): StepColor | undefined {
+function convertHexColorToStepColor(color: string): StepColor | undefined {
   const hex = color.trim().replace(/^#/, "")
 
   if (hex.length === 3 || hex.length === 4) {
@@ -22,7 +22,7 @@ function normalizeHexColor(color: string): StepColor | undefined {
       .split("")
       .map((channel) => channel + channel)
       .join("")
-    return normalizeHexColor(expanded)
+    return convertHexColorToStepColor(expanded)
   }
 
   if (hex.length !== 6 && hex.length !== 8) return undefined
@@ -39,7 +39,9 @@ function normalizeHexColor(color: string): StepColor | undefined {
   return scaleRgbChannels(channels, 255)
 }
 
-function normalizeFunctionalColor(color: string): StepColor | undefined {
+function convertFunctionalColorToStepColor(
+  color: string,
+): StepColor | undefined {
   const match = color.trim().match(/^rgba?\(\s*([^)]+)\s*\)$/i)
   if (!match) return undefined
 
@@ -55,9 +57,7 @@ function normalizeFunctionalColor(color: string): StepColor | undefined {
   return scaleRgbChannels(channels, scale)
 }
 
-function normalizeCssColorWithRuntimeParser(
-  color: string,
-): StepColor | undefined {
+function convertCssColorToStepColor(color: string): StepColor | undefined {
   const bun = (
     globalThis as {
       Bun?: { color?: (input: string, outputFormat: string) => string | null }
@@ -68,19 +68,19 @@ function normalizeCssColorWithRuntimeParser(
   const hex = bun.color(color, "hex")
   if (!hex) return undefined
 
-  return normalizeHexColor(hex)
+  return convertHexColorToStepColor(hex)
 }
 
-export function normalizeColorInput(
+export function convertColorInputToStepColor(
   color: StepColorInput | undefined,
 ): StepColor | undefined {
   if (!color) return undefined
-  if (Array.isArray(color)) return normalizeRgbArray(color)
+  if (Array.isArray(color)) return convertRgbArrayToStepColor(color)
   if (typeof color !== "string") return undefined
 
   return (
-    normalizeHexColor(color) ??
-    normalizeFunctionalColor(color) ??
-    normalizeCssColorWithRuntimeParser(color)
+    convertHexColorToStepColor(color) ??
+    convertFunctionalColorToStepColor(color) ??
+    convertCssColorToStepColor(color)
   )
 }
