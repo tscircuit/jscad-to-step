@@ -1,6 +1,10 @@
 {
   "name": "jscad-to-step",
   "version": "0.0.6",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tscircuit/jscad-to-step"
+  },
   "module": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
