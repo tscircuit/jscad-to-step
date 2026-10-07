@@ -68,7 +68,15 @@ function resolveGeometries(input: JscadOperation | RenderedModel): Geom3Like[] {
   return Array.isArray(result) ? result : [result]
 }
 
-export function jscadToStep(operation: JscadOperation): string {
+export interface JscadToStepOptions {
+  /** Merge adjacent coplanar polygons into faces with inner bounds for holes. Default: true. */
+  mergeCoplanarFaces?: boolean
+}
+
+export function jscadToStep(
+  operation: JscadOperation | RenderedModel,
+  options: JscadToStepOptions = {},
+): string {
   const repo = new Repository()
 
   const geometries = resolveGeometries(operation)
@@ -146,7 +154,11 @@ export function jscadToStep(operation: JscadOperation): string {
     if (!geom?.polygons || geom.polygons.length === 0) continue
 
     const { color: _color, ...brepGeom } = geom
-    const faces = geom3ToBrep(repo, brepGeom satisfies BrepGeom3Like)
+    const faces = geom3ToBrep(
+      repo,
+      brepGeom satisfies BrepGeom3Like,
+      options.mergeCoplanarFaces ?? true,
+    )
     if (faces.length === 0) continue
 
     const shell = repo.add(new ClosedShell("", faces))
