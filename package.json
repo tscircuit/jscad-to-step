@@ -23,7 +23,7 @@
     "@biomejs/biome": "^2.3.8",
     "@jscad/modeling": "^2.12.6",
     "@types/bun": "latest",
-    "jscad-electronics": "^0.0.120",
+    "jscad-electronics": "https://pkg.pr.new/tscircuit/jscad-electronics@05b82f6930ae5e00ea04c67ca01164b1b73d8665",
     "looks-same": "^10.0.1",
     "occt-import-js": "^0.0.23",
     "poppygl": "^0.0.17",
