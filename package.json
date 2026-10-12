@@ -20,6 +20,7 @@
   ],
   "scripts": {
     "build": "tsup lib/index.ts --format esm --dts",
+    "prepare": "bun install --frozen-lockfile --ignore-scripts && bun run build",
     "format": "biome format --write .",
     "format:check": "biome format ."
   },
