@@ -48,3 +48,17 @@ fs.writeFileSync("intersect.step", jscadToStep(intersected))
 ```
 
 `jscadToStep()` also accepts pre-rendered models with the shape `{ geometries: [{ geom, color }] }`.
+
+Adjacent coplanar polygons merge into a single planar STEP face by default.
+Holes are retained as inner face bounds, and vertices shared with neighboring
+faces remain in the boundary. Bodies and their colors stay separate. Ambiguous
+or intersecting trimming boundaries retain the original polygon faces.
+
+To keep individual polygon faces:
+
+```ts
+jscadToStep(operation, { mergeCoplanarFaces: false })
+```
+
+This simplifies flat surfaces; curved surfaces and cylindrical hole walls remain
+faceted because JSCAD supplies polygon geometry.

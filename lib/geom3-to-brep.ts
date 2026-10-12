@@ -6,6 +6,7 @@ import {
   EdgeCurve,
   EdgeLoop,
   FaceOuterBound,
+  FaceBound,
   Line,
   OrientedEdge,
   Plane,
@@ -21,11 +22,12 @@ import {
   dot,
   lengthSq,
   normalize,
-  newellNormal,
   applyTransform,
   vertexKey,
   cleanVec3,
 } from "./vec-math.ts"
+
+import { mergeCoplanarFaces } from "./merge-coplanar.ts"
 
 interface Polygon {
   vertices: Array<Vec3 | { pos?: number[]; position?: number[] } | number[]>
@@ -147,6 +149,7 @@ function splitTJunctions(polygons: Vec3[][]): Vec3[][] {
 export function geom3ToBrep(
   repo: Repository,
   geom: Geom3,
+  mergeCoplanar = true,
 ): Ref<AdvancedFace>[] {
   const vertexMap = new Map<string, Ref<VertexPoint>>()
   const edgeMap = new Map<string, Ref<EdgeCurve>>()
@@ -215,42 +218,35 @@ export function geom3ToBrep(
 
   const faces: Ref<AdvancedFace>[] = []
 
-  for (const positions of rawPolygons) {
-    // Deduplicate consecutive identical vertices
-    const uniquePositions: Vec3[] = []
-    for (let i = 0; i < positions.length; i++) {
-      const pos = positions[i]!
-      const prev = i > 0 ? positions[i - 1]! : positions[positions.length - 1]!
-      if (vertexKey(pos) !== vertexKey(prev)) {
-        uniquePositions.push(pos)
-      }
-    }
+  rawPolygons = rawPolygons
+    .map((positions) =>
+      positions.filter(
+        (pos, i) =>
+          vertexKey(pos) !==
+          vertexKey(positions[(i + positions.length - 1) % positions.length]!),
+      ),
+    )
+    .filter((positions) => positions.length >= 3)
 
-    if (uniquePositions.length < 3) continue
+  function createLoop(positions: Vec3[]): Ref<EdgeLoop> {
+    const vertexRefs = positions.map((pos) => getOrCreateVertex(pos))
+    const orientedEdges = positions.map((aPos, i) => {
+      const next = (i + 1) % positions.length
+      const { edgeRef, sameDirection } = getOrCreateEdge(
+        aPos,
+        positions[next]!,
+        vertexRefs[i]!,
+        vertexRefs[next]!,
+      )
+      return repo.add(new OrientedEdge("", edgeRef, sameDirection))
+    })
+    return repo.add(new EdgeLoop("", orientedEdges))
+  }
 
-    // Get/create vertex refs
-    const vertexRefs = uniquePositions.map((pos) => getOrCreateVertex(pos))
-
-    // Build oriented edges
-    const orientedEdges: Ref<OrientedEdge>[] = []
-
-    for (let i = 0; i < uniquePositions.length; i++) {
-      const aPos = uniquePositions[i]!
-      const bPos = uniquePositions[(i + 1) % uniquePositions.length]!
-      const aRef = vertexRefs[i]!
-      const bRef = vertexRefs[(i + 1) % uniquePositions.length]!
-
-      // Skip degenerate edges
-      if (vertexKey(aPos) === vertexKey(bPos)) continue
-
-      const { edgeRef, sameDirection } = getOrCreateEdge(aPos, bPos, aRef, bRef)
-      orientedEdges.push(repo.add(new OrientedEdge("", edgeRef, sameDirection)))
-    }
-
-    if (orientedEdges.length < 3) continue
-
-    // Compute face normal using Newell method (robust for colinear vertices)
-    const normal = cleanVec3(newellNormal(uniquePositions))
+  for (const region of mergeCoplanarFaces(rawPolygons, mergeCoplanar)) {
+    const uniquePositions = region.loops[0]!
+    // The merged region retains the seed polygon’s oriented plane normal.
+    const normal = cleanVec3(region.normal)
 
     // Create plane
     const v0 = uniquePositions[0]!
@@ -284,9 +280,13 @@ export function geom3ToBrep(
     )
     const plane = repo.add(new Plane("", placement))
 
-    const edgeLoop = repo.add(new EdgeLoop("", orientedEdges))
-    const faceOuterBound = repo.add(new FaceOuterBound("", edgeLoop, true))
-    const face = repo.add(new AdvancedFace("", [faceOuterBound], plane, true))
+    const bounds = region.loops.map((loop, index) => {
+      const edgeLoop = createLoop(loop)
+      return index === 0
+        ? repo.add(new FaceOuterBound("", edgeLoop, true))
+        : repo.add(new FaceBound("", edgeLoop, true))
+    })
+    const face = repo.add(new AdvancedFace("", bounds, plane, true))
     faces.push(face)
   }
 
