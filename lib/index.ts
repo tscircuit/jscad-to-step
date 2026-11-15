@@ -41,23 +41,23 @@ interface RenderedModel {
 }
 
 function isRenderedModel(input: any): input is RenderedModel {
-  return (
-    input &&
-    typeof input === "object" &&
-    Array.isArray(input.geometries) &&
-    input.geometries.length > 0 &&
-    input.geometries[0]?.geom?.polygons
+  // jscad-fiber emits { geometries } even when every sibling is empty or 2D
+  // (sides, no polygons). Requiring a non-empty first geom3 used to fall
+  // through into executeJscadOperations and throw "Operation type is undefined".
+  return Boolean(
+    input && typeof input === "object" && Array.isArray(input.geometries),
   )
 }
 
 function resolveGeometries(input: JscadOperation | RenderedModel): Geom3Like[] {
   if (isRenderedModel(input)) {
-    return input.geometries.map((entry) => {
-      const geom = entry.geom
+    return input.geometries.flatMap((entry) => {
+      const geom = entry?.geom
+      if (!geom) return []
       if (entry.color && !geom.color) {
-        return { ...geom, color: entry.color }
+        return [{ ...geom, color: entry.color }]
       }
-      return geom
+      return [geom]
     })
   }
 
