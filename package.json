@@ -38,6 +38,6 @@
   },
   "dependencies": {
     "jscad-planner": "^0.0.14",
-    "stepts": "^0.0.4"
+    "stepts": "^0.0.7"
   }
 }
